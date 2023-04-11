@@ -9,6 +9,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 
+//This is a program to register a new user. All the details(username,password,email address) are stored in a table called unpw in database loginauth
+//Pre-requisites: To connect to a MySQL database using Java, you need to have the MySQL Connector/J JDBC driver in your classpath.
+// This JDBC driver allows your Java application to connect to a MySQL database and execute SQL statements.
 public class RegisterUser {
     private static final String DB_URL = "jdbc:mysql://localhost/loginauth";
     private static final String DB_USER = "username";
