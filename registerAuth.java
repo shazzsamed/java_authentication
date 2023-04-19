@@ -1,3 +1,5 @@
+package UserLoginAndRegister;
+
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,9 +14,9 @@ import java.sql.ResultSet;
 //This is a program to register a new user. All the details(username,password,email address) are stored in a table called unpw in database loginauth
 //Pre-requisites: To connect to a MySQL database using Java, you need to have the MySQL Connector/J JDBC driver in your classpath.
 // This JDBC driver allows your Java application to connect to a MySQL database and execute SQL statements.
-public class RegisterUser {
-    private static final String DB_URL = "jdbc:mysql://localhost/loginauth";
-    private static final String DB_USER = "username";
+public class registerAuth {
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/loginauth?autoReconnect=true&useSSL=false";
+    private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "password";
 
     public static void main(String[] args) {
@@ -28,11 +30,17 @@ public class RegisterUser {
             return;
         }
 
-        System.out.print("Enter your email: ");
-        String email = scanner.nextLine();
+        System.out.print("Security Question 1: What is your Favourite movie ?");
+        String secq1 = scanner.nextLine();
+        
+        System.out.print("Security Question 2: In what city did your parents meet?");
+        String secq2 = scanner.nextLine();
+        
+        System.out.print("Security Question 3: What is your Favourite Car/Bike ?");
+        String secq3 = scanner.nextLine();
 
         System.out.print("Enter your password: ");
-        String password = hidePassword(scanner);
+        String password = scanner.nextLine();
 
         if (!isValidPassword(password)) {
             System.out.println("Invalid password.");
@@ -40,18 +48,22 @@ public class RegisterUser {
         }
 
         String hashedPassword = hashPassword(password);
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             Statement stmt = conn.createStatement()) {
-            String sql = String.format("INSERT INTO unpw (username, password, email) VALUES ('%s', '%s', '%s')",
-                                       username, hashedPassword, email);
+        
+        try {
+        	Class.forName("com.mysql.jdbc.Driver");
+        	Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        	Statement stmt = conn.createStatement();
+        	
+            String sql = String.format("INSERT INTO unpw (username, password, secq1, secq2, secq3) VALUES ('%s', '%s', '%s','%s','%s')",
+                                       username, hashedPassword, secq1, secq2, secq3);
             int rowsAffected = stmt.executeUpdate(sql);
             if (rowsAffected == 1) {
                 System.out.println("Registration successful.");
+                return;
             } else {
                 System.out.println("Registration failed.");
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.out.println("Registration failed.");
             e.printStackTrace();
         }
@@ -69,17 +81,7 @@ public class RegisterUser {
         }
     }
 
-    private static String hidePassword(Scanner scanner) {
-        String password = "";
-        while (true) {
-            char c = System.console().readPassword()[0];
-            if (c == '\r' || c == '\n') {
-                break;
-            }
-            password += c;
-        }
-        return password;
-    }
+
 
     private static boolean isValidPassword(String password) {
         Pattern pattern = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$");
